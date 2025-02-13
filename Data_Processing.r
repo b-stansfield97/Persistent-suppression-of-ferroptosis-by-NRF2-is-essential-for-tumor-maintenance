@@ -3,7 +3,7 @@
 ###################################
 
 ### Description
-# R Script to read in counts, feautre and barcode data from scRNA-Seq experiment,
+# R Script to read in counts, features and barcode data from scRNA-Seq experiment,
 # assign cell genotypes, scTransform normalize, intergrate and perform dimensionality reduction 
 
 ### Author 
