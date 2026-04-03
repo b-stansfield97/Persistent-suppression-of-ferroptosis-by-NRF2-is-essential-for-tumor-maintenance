@@ -1,11 +1,62 @@
-# Persistent-suppression-of-ferroptosis-by-NRF2-is-essential-for-tumor-maintenance
-Analysis of scRNA-Seq data from mouse lung tissue across 4 different timepoints and 4 different genotypes
+# Persistent Suppression of Ferroptosis by NRF2 is Essential for Tumor Maintenance
 
-### Experimental design
-To decipher the precise role and underlying mechanisms of NRF2 in tumor progression within the tumor microenvironment, we generated a conditional Nrf2 knockout mouse model in a Kras G12D -driven tumor system: Kras FSF.G12D/+ ;Nrf2 Fl/Fl ;Rosa26 CreERT2/CreERT2 (KNR) mice. 8-week-old mice were instilled with FlpO virus to activate Kras G12D for tumor initiation. Mice were then treated with TAM to conditionally knockout Nrf2 for 1 (counts_2_1), 2 (counts_3_2) or 3 weeks (counts_4_3) prior to tissue harvest. Control mice (counts_ctrl) were instilled with FlpO virus but received corn oil instead of TAM. 
+scRNA-seq analysis pipeline for investigating NRF2-mediated ferroptosis suppression in a conditional Kras-driven mouse lung tumor model across multiple timepoints following Nrf2 deletion.
 
-### Cell Genotyping
-Our model contains cells with four seperate genotypes (Kras +/+ ;Nrf2 +/+ , Kras +/+ ;Nrf2 -/- , Kras G12D/+ ;Nrf2 +/+ , Kras G12D/+ ;Nrf2 -/-). Evaluating the effects of TAM-induced Nrf2 deletion in Kras +/+ (normal cells) and Kras G12D/+ (cancer cells) backgrounds posed a significant challenge due to the complexity and coverage heterogeneity of single-cell data. To overcome this, we trained several binary classification neural network models. The training sets for the models utilized cells with complete alignment of sequencing reads to the Kras locus, allowing clear distinction between Kras +/+ and Kras G12D/+, and Nrf2 exon 5 coverage that reliably differentiated Nrf2 +/+ from Nrf2 -/- cells.
+## Overview
 
-### scRNA-Seq library generation, sequencing and mapping 
-Single cell suspensions were processed for 3’ single cell RNA sequencing using the 10xGenomics Chromium Single Cell 3’ Reagent Kits v3.1. 3’. Libraries were sequenced on 1 lane of Illumina 2x100 NovaSeq S4. Demultiplexing of sequencing data was performed with Illumina Bcl2fastq (v2.19.1.403) and reads were aligned to the mouse reference (GRCm38/mm10; UCSC) using the 10x Genomics CellRanger pipeline (v.7.1.0).
+This repository contains the bioinformatics pipeline used to process, integrate, and analyze single-cell RNA sequencing (scRNA-seq) data from mouse lung tissue. The study examines the role of NRF2 in tumor maintenance by profiling four distinct cell genotypes across four experimental timepoints following conditional Nrf2 deletion.
+
+## Repository Structure
+
+```
+├── Cell_Ranger_mapping.sh   # CellRanger alignment of FASTQ reads to mm10 reference
+├── Data_Processing.r        # Seurat-based QC, normalization, integration, and dimensionality reduction
+└── README.md
+```
+
+## Requirements
+
+### Software
+- [CellRanger](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger) v7.1.0
+- R (≥ 4.0)
+  - [Seurat](https://satijalab.org/seurat/) v4+
+  - ggplot2
+  - ggpubr
+
+### Reference Genome
+- Mouse reference genome: GRCm38/mm10 (`refdata-gex-mm10-2020-A`)
+
+## Pipeline
+
+### 1. Read Alignment (`Cell_Ranger_mapping.sh`)
+FASTQ files from four samples are aligned to the mm10 mouse reference genome using CellRanger. All four samples are processed in parallel:
+
+| Sample ID   | Timepoint            |
+|-------------|----------------------|
+| counts_ctrl | Control (corn oil)   |
+| counts_2_1  | 1 week post-Nrf2 KO  |
+| counts_3_2  | 2 weeks post-Nrf2 KO |
+| counts_4_3  | 3 weeks post-Nrf2 KO |
+
+### 2. Data Processing (`Data_Processing.r`)
+1. Load CellRanger count matrices into Seurat objects
+2. Assign cell genotypes using pre-trained ML classifiers
+3. QC filtering and SCTransform normalization per sample
+4. Data integration using Seurat's `IntegrateData` (SCT workflow)
+5. Dimensionality reduction: PCA → UMAP
+
+## Experimental Design
+
+To investigate the role of NRF2 in tumor progression within the tumor microenvironment, we generated a conditional Nrf2 knockout mouse model in a Kras<sup>G12D</sup>-driven tumor system: *Kras*<sup>FSF.G12D/+</sup>;*Nrf2*<sup>Fl/Fl</sup>;*Rosa26*<sup>CreERT2/CreERT2</sup> (KNR) mice. 8-week-old mice were instilled with FlpO virus to activate Kras<sup>G12D</sup> for tumor initiation. Mice were then treated with tamoxifen (TAM) to conditionally knockout Nrf2 for 1, 2, or 3 weeks prior to tissue harvest. Control mice were instilled with FlpO virus but received corn oil instead of TAM.
+
+## Cell Genotyping
+
+The model contains cells with four distinct genotypes (*Kras*<sup>+/+</sup>;*Nrf2*<sup>+/+</sup>, *Kras*<sup>+/+</sup>;*Nrf2*<sup>-/-</sup>, *Kras*<sup>G12D/+</sup>;*Nrf2*<sup>+/+</sup>, *Kras*<sup>G12D/+</sup>;*Nrf2*<sup>-/-</sup>). Cell genotypes were assigned using binary classification neural network models trained on cells with complete alignment to the Kras locus and reliable Nrf2 exon 5 coverage, allowing clear distinction between Kras<sup>+/+</sup> and Kras<sup>G12D/+</sup>, and between Nrf2<sup>+/+</sup> and Nrf2<sup>-/-</sup> cells.
+
+## Data
+
+scRNA-seq libraries were prepared using the 10x Genomics Chromium Single Cell 3' Reagent Kits v3.1 and sequenced on an Illumina NovaSeq S4 (2×100 bp). Demultiplexing was performed with Bcl2fastq (v2.19.1.403).
+
+## License
+
+This project is licensed under the terms of the [LICENSE](LICENSE) file included in this repository.
