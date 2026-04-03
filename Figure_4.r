@@ -46,7 +46,7 @@ for (i in names(samples)) {
 
 
 #################################################
-### Ferroptosis Marker Proportion - Figure 4B ###
+### Ferroptosis Marker Proportion - Figure 4A ###
 #################################################
 
 # For each sample and each ferroptosis marker (Ptgs2, Acsl4, Tfrc), calculates
