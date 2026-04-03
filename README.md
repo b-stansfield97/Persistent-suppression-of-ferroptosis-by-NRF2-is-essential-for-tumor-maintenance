@@ -9,8 +9,14 @@ This repository contains the bioinformatics pipeline used to process, integrate,
 ## Repository Structure
 
 ```
-├── Cell_Ranger_mapping.sh   # CellRanger alignment of FASTQ reads to mm10 reference
-├── Data_Processing.r        # Seurat-based QC, normalization, integration, and dimensionality reduction
+├── Cell_Ranger_mapping.sh    # CellRanger alignment of FASTQ reads to mm10 reference
+├── Data_Processing.r         # Seurat QC, normalization, integration, and dimensionality reduction
+├── Cell_Marker_Analysis.r    # Cell type identification using marker genes and cluster assignment
+├── Figure_2.r                # UMAP visualisations and cell cluster proportion analysis
+├── Figure_3.r                # BAM visualisation, genotype alluvial plot, and classifier UMAPs
+├── Figure_4.r                # Ferroptosis marker heatmaps, proportion plots, and UMAPs
+├── data/
+│   └── cell_markers.csv      # Reference table of marker genes per cell type
 └── README.md
 ```
 
@@ -22,6 +28,14 @@ This repository contains the bioinformatics pipeline used to process, integrate,
   - [Seurat](https://satijalab.org/seurat/) v4+
   - ggplot2
   - ggpubr
+  - data.table
+  - alluvial
+  - ggalluvial
+  - Rsamtools
+  - Gviz
+  - TxDb.Mmusculus.UCSC.mm10.knownGene
+  - BSgenome.Mmusculus.UCSC.mm10
+  - biomaRt
 
 ### Reference Genome
 - Mouse reference genome: GRCm38/mm10 (`refdata-gex-mm10-2020-A`)
@@ -44,6 +58,28 @@ FASTQ files from four samples are aligned to the mm10 mouse reference genome usi
 3. QC filtering and SCTransform normalization per sample
 4. Data integration using Seurat's `IntegrateData` (SCT workflow)
 5. Dimensionality reduction: PCA → UMAP
+
+### 3. Cell Type Identification (`Cell_Marker_Analysis.r`)
+1. Normalize and scale raw counts using `LogNormalize`
+2. Identify cluster marker genes with `FindAllMarkers`
+3. Visualize known cell type markers (loaded from `data/cell_markers.csv`) using dot plots and feature plots
+4. Assign cell type identities to clusters based on marker expression and canonical markers from the literature
+
+### 4. Figure Generation
+
+#### Figure 2 (`Figure_2.r`)
+- UMAP plots of integrated data annotated by cell type, faceted by sample
+- Bar plots of cluster proportions across time points for clusters of interest
+
+#### Figure 3 (`Figure_3.r`)
+- BAM file visualisation of NRF2 WT/KO and KRAS WT/MT cells at their respective loci using Gviz
+- Alluvial plot showing shifts in cell genotype composition across time points following Nrf2 deletion
+- 4×4 UMAP grid (one panel per genotype class, one column per time point) coloured by cluster identity
+
+#### Figure 4 (`Figure_4.r`)
+- Heatmaps of ferroptosis marker gene expression (Ptgs2, Acsl4, Tfrc, Gapdh) grouped by genotype class per time point
+- Bar plots of the percentage of cells expressing each ferroptosis marker per genotype class across time points
+- Feature UMAPs of ferroptosis marker expression across time points
 
 ## Experimental Design
 
